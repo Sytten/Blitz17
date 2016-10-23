@@ -1,30 +1,47 @@
-import SimpleHTTPServer
-import SocketServer
-import logging
-import cgi
+import requests
+import json
+# import jsonify
+# from jsonmerge import merge
+from flask import Flask
+from flask import request
+
+app = Flask(__name__)
 
 
-class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+@app.route('/')
+def hello():
+    return "Hello World!"
 
-    def do_GET(self):
-        SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
-    def do_POST(self):
-        logging.warning(self.headers)
-        form = cgi.FieldStorage(
-            fp=self.rfile,
-            headers=self.headers,
-            environ={'REQUEST_METHOD':'POST',
-                     'CONTENT_TYPE':self.headers['Content-Type'],
-                     })
-        logging.warning("======= POST VALUES =======")
-        for item in form.list:
-            logging.warning(item)
-        logging.warning("\n")
-        SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
+@app.route('/retrieve_menu')
+def retrieve_menu():
+    url = 'http://xxx.pythonanywhere.com/stripetest'
+    data = {'stripeAmount': '199', 'stripeCurrency': 'USD', 'stripeToken': '122', 'stripeDescription': 'Test post'}
+    headers = {'Content-Type' : 'application/json'}
 
-if __name__ == "__main__":
-    PORT = 8000
-    handler = ServerHandler
-    httpd = SocketServer.TCPServer(("", PORT), handler)
-    httpd.serve_forever()
+    r = requests.post(url, data=json.dumps(data), headers=headers)
+
+    # return json.dumps(r.json(), indent=4)
+    return r.text
+
+
+@app.route('/receive', methods=["POST"])
+def receive():
+    json_dict = request.get_json()
+
+    nb_items = json_dict['numberOfItems']
+    calories = json_dict['calories']
+    menu_url = json_dict['menuUrl']
+
+    print nb_items
+    print calories
+    print menu_url
+
+    with open('data.json') as data_file:
+        data = json.load(data_file)
+
+    return json.dumps(data)
+
+
+if __name__ == '__main__':
+    app.run()
