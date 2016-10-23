@@ -37,13 +37,13 @@ def gen_prolog(menu):
 		item_ids["item" + str(i)] = (item, cals)
 		i += 1
 
-	item_kwnoledge = ""
+	item_knowledge = ""
 	for item_id in item_ids:
 		# print item_id, item_ids[item_id][1]
-		item_kwnoledge += "calories(%s, %d).\n" % (item_id, item_ids[item_id][1])
+		item_knowledge += "calories(%s, %d).\n" % (item_id, item_ids[item_id][1])
 
 	with open("pymenu.pl", 'w') as f:
-		f.write(item_kwnoledge)
+		f.write(item_knowledge)
 		f.write(ITEMS_FUNCT)
 
 	return item_ids
