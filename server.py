@@ -1,11 +1,22 @@
 import requests
 import json
-# import jsonify
-# from jsonmerge import merge
+import menu as menu_retriever
 from flask import Flask
 from flask import request
 
 app = Flask(__name__)
+
+
+def retrieve_menu(url):
+    # url = 'https://raw.githubusercontent.com/pffy/data-mcdonalds-nutritionfacts/master/json/mcd-pretty.json'
+    req = requests.get(url)
+    menu_raw = req.json()
+    menu = dict()
+
+    for item in menu_raw:
+        menu[item['ITEM']] = int(item['CAL'])
+
+    return menu
 
 
 @app.route('/')
@@ -13,32 +24,20 @@ def hello():
     return "Hello World!"
 
 
-@app.route('/retrieve_menu')
-def retrieve_menu():
-    url = 'http://xxx.pythonanywhere.com/stripetest'
-    data = {'stripeAmount': '199', 'stripeCurrency': 'USD', 'stripeToken': '122', 'stripeDescription': 'Test post'}
-    headers = {'Content-Type' : 'application/json'}
-
-    r = requests.post(url, data=json.dumps(data), headers=headers)
-
-    # return json.dumps(r.json(), indent=4)
-    return r.text
-
-
 @app.route('/receive', methods=["POST"])
 def receive():
     json_dict = request.get_json()
 
-    nb_items = json_dict['numberOfItems']
-    calories = json_dict['calories']
+    nb_items = int(json_dict['numberOfItems'])
+    calories = int(json_dict['calories'])
     menu_url = json_dict['menuUrl']
-
-    print nb_items
-    print calories
-    print menu_url
 
     with open('data.json') as data_file:
         data = json.load(data_file)
+
+    menu = retrieve_menu(menu_url)
+    items = menu_retriever.get_items(menu, nb_items, calories)
+    data['answer'] = items
 
     return json.dumps(data)
 
