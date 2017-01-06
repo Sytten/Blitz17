@@ -3,5 +3,3 @@
 ### Overview
 
 ### Specifications
-
-### Team
