@@ -2,6 +2,7 @@ from random import choice
 from game import Game
 from game import Hero
 from ai import next_move
+from ai import reconstruct_path, a_star_search
 
 import math
 
@@ -43,7 +44,13 @@ class Bot:
         for i in range(len(positions)):
             x2 = positions[i][0]
             y2 = positions[i][1]
-            dist = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+            temp = self.game.board.tiles[x2][y2]
+            self.game.board.tiles[x2][y2] = -1
+
+            dist = self.get_path_length((x1, y1), (x2, y2))
+
+            self.game.board.tiles[x2][y2] = temp
             if dist < distance:
                 distance = dist
                 nearest = i
@@ -56,7 +63,13 @@ class Bot:
         for key, value in positions.iteritems():
             x2 = key[0]
             y2 = key[1]
-            dist = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+            temp = self.game.board.tiles[x2][y2]
+            self.game.board.tiles[x2][y2] = -1
+
+            dist = self.get_path_length((x1,y1), (x2,y2))
+
+            self.game.board.tiles[x2][y2] = temp
             if dist < distance and str(value) != str(self.game.state['hero']['id']):
                 distance = dist
                 nearest = key
@@ -71,6 +84,13 @@ class Bot:
         if customer.french_fries > self.game.state['hero']['frenchFriesCount']:
             return True
         return False
+
+    def get_path_length(self, start, goal):
+        came_from, cost_so_far = a_star_search(self.game, start, goal)
+
+        path = reconstruct_path(came_from, start, goal)
+
+        return len(path)
 
 class RandomBot(Bot):
     def move(self, state):
