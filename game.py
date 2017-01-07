@@ -112,6 +112,14 @@ class Board:
         pos = self.tiles[x][y]
         return (pos != WALL) and (pos != TAVERN) and (pos != CUSTOMER) and not isinstance(pos, FriesTile) and not isinstance(pos, BurgerTile)
 
+    def soft_passable(self, loc):
+        """True if not a wall or outside"""
+        if not self.in_bounds(loc):
+            return False
+        x, y = loc
+        pos = self.tiles[x][y]
+        return (pos != WALL)
+
     def in_bounds(self, loc):
         row, col = loc
         return 0 <= row < self.size and 0 <= col < self.size
@@ -120,6 +128,14 @@ class Board:
         row, col = loc
         next_pos = [(row+1, col), (row, col-1), (row-1, col), (row, col+1)]
         next_pos = filter(self.passable, next_pos)
+
+        return next_pos
+
+    def soft_neighbors(self, loc):
+        row, col = loc
+        next_pos = [(row+1, col), (row, col-1), (row-1, col), (row, col+1)]
+        next_pos = filter(self.soft_passable, next_pos)
+
         return next_pos
 
     def to(self, loc, direction):
