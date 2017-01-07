@@ -15,26 +15,29 @@ class Bot:
 
         target = self.hero.pos
 
-        customer_id = self.nearest(self.game.customers_locs)
+        try:
+            customer_id = self.nearest(self.game.customers_locs)
 
-        if self.should_go_to_nearest_life() and self.hero.calories >= 30 and not self.can_deliver(customer_id):
-            print "Need life"
-            life_id = self.nearest(self.game.taverns_locs)
-            target = self.game.taverns_locs[life_id]
-        else:
-            if not self.require_burgers(self.game.customers[customer_id]) \
-                    and not self.require_fries(self.game.customers[customer_id]):
-                print "Go to customer"
-                target = self.game.customers_locs[customer_id]
-            elif self.require_burgers(self.game.customers[customer_id]):
-                print "Go to burgers"
-                target = self.nearest_dict(self.game.burger_locs)
-            elif self.require_fries(self.game.customers[customer_id]):
-                print "Go to fries"
-                target = self.nearest_dict(self.game.fries_locs)
+            if self.should_go_to_nearest_life() and self.hero.calories >= 30 and not self.can_deliver(customer_id):
+                print "Need life"
+                life_id = self.nearest(self.game.taverns_locs)
+                target = self.game.taverns_locs[life_id]
+            else:
+                if not self.require_burgers(self.game.customers[customer_id]) \
+                        and not self.require_fries(self.game.customers[customer_id]):
+                    print "Go to customer"
+                    target = self.game.customers_locs[customer_id]
+                elif self.require_burgers(self.game.customers[customer_id]):
+                    print "Go to burgers"
+                    target = self.nearest_dict(self.game.burger_locs)
+                elif self.require_fries(self.game.customers[customer_id]):
+                    print "Go to fries"
+                    target = self.nearest_dict(self.game.fries_locs)
 
-        self.game.board.tiles[target[0]][target[1]] = -1
-        direction = next_move(self.game, self.hero.pos, target)
+            self.game.board.tiles[target[0]][target[1]] = -1
+            direction = next_move(self.game, self.hero.pos, target)
+        except:
+            return "Stay"
 
         return direction
 
