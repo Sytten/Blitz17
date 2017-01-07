@@ -15,6 +15,11 @@ class PriorityQueue:
         return heapq.heappop(self.elements)[1]
 
 def cost(game, current, next):
+
+    cost = 1
+    if next in game.spikes_locs:
+        cost = 2
+
     return 1
 
 def heuristic(game, goal, next):
@@ -47,9 +52,24 @@ def a_star_search(game, start, goal):
 def reconstruct_path(came_from, start, goal):
     current = goal
     path = [current]
+
     while current != start:
         current = came_from[current]
         path.append(current)
-    path.append(start) # optional
+    # path.append(start) # optional
     path.reverse() # optional
     return path
+
+
+def next_move(game, start, goal):
+    came_from, cost_so_far = a_star_search(game, start, goal)
+
+    path = reconstruct_path(came_from, start, goal)
+
+    if len(path) < 2:
+        return 'Stay'
+
+    return game.board.direction_to(start, path[1])
+
+
+# WHAT WHEN NO SOLUTION PLIZZ
