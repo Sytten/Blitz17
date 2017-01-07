@@ -18,7 +18,7 @@ def cost(game, current, next):
 
     cost = 1
     if next in game.spikes_locs:
-        cost = 5
+        cost = 10
 
     return 1
 
