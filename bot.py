@@ -9,38 +9,38 @@ deltas = [(-1, 0), (0, 1), (1, 0), (0, -1)]
 
 class Bot:
     def move(self, state):
-        game = Game(state)
-        hero = Hero(state['hero'])
+        self.game = Game(state)
+        self.hero = Hero(state['hero'])
+
+        target = self.hero.pos
 
         if self.hero.life < 40:
+            print "Need life"
             life_id = self.nearest(self.game.taverns_locs)
-            direction = self.request_direction(self.game.taverns_locs[life_id])
+            target = self.game.taverns_locs[life_id]
         else:
             customer_id = self.nearest(self.game.customers_locs)
-            if not self.require_burgers(self.game.customers[customer_id]) and not self.require_fries(
-                    self.game.customers[customer_id]):
-                direction = self.request_direction(self.game.customers_locs[customer_id])
+            if not self.require_burgers(self.game.customers[customer_id]) \
+                    and not self.require_fries(self.game.customers[customer_id]):
+                print "Go to customer"
+                target = self.game.customers_locs[customer_id]
             elif self.require_burgers(self.game.customers[customer_id]):
-                direction = self.request_direction(self.nearest_dict(self.game.burger_locs))
+                print "Go to burgers"
+                target = self.nearest_dict(self.game.burger_locs)
             elif self.require_fries(self.game.customers[customer_id]):
-                direction = self.request_direction(self.nearest_dict(self.game.fries_locs))
+                print "Go to fries"
+                target = self.nearest_dict(self.game.fries_locs)
+
+        self.game.board.tiles[target[0]][target[1]] = -1
+        direction = next_move(self.game, self.hero.pos, target)
+
         return direction
-
-
-        goal = game.burger_locs.keys()[0]
-        possible_pos = []
-        for delta in deltas:
-            possible_pos.append((goal[0] + delta[0], goal[1] + delta[1]))
-        possible_pos = filter(game.board.passable, possible_pos)
-
-        return next_move(game, hero.pos, possible_pos[0])
 
     def nearest(self, positions):
         distance = 999999
-        x1 = self.hero.pos['x']
-        y1 = self.hero.pos['y']
+        x1 = self.hero.pos[0]
+        y1 = self.hero.pos[1]
         for i in range(len(positions)):
-            print positions
             x2 = positions[i][0]
             y2 = positions[i][1]
             dist = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
@@ -51,8 +51,8 @@ class Bot:
 
     def nearest_dict(self, positions):
         distance = 999999
-        x1 = self.hero.pos['x']
-        y1 = self.hero.pos['y']
+        x1 = self.hero.pos[0]
+        y1 = self.hero.pos[1]
         for key, value in positions.iteritems():
             x2 = key[0]
             y2 = key[1]
@@ -62,6 +62,15 @@ class Bot:
                 nearest = key
         return nearest
 
+    def require_burgers(self, customer):
+        if customer.burger > self.game.state['hero']['burgerCount']:
+            return True
+        return False
+
+    def require_fries(self, customer):
+        if customer.french_fries > self.game.state['hero']['frenchFriesCount']:
+            return True
+        return False
 
 class RandomBot(Bot):
     def move(self, state):

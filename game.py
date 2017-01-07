@@ -50,9 +50,9 @@ class Game:
         self.fries_locs = {}
         self.burger_locs = {}
         self.heroes_locs = {}
-        self.taverns_locs = set()
-        self.spikes_locs = set()
-        self.customers_locs = set()
+        self.taverns_locs = list()
+        self.spikes_locs = list()
+        self.customers_locs = list()
         for row in range(len(self.board.tiles)):
             for col in range(len(self.board.tiles[row])):
                 obj = self.board.tiles[row][col]
@@ -63,11 +63,11 @@ class Game:
                 elif isinstance(obj, HeroTile):
                     self.heroes_locs[(row, col)] = obj.id
                 elif obj == TAVERN:
-                    self.taverns_locs.add((row, col))
+                    self.taverns_locs.append((row, col))
                 elif obj == SPIKE:
-                    self.spikes_locs.add((row, col))
+                    self.spikes_locs.append((row, col))
                 elif obj == CUSTOMER:
-                    self.customers_locs.add((row, col))
+                    self.customers_locs.append((row, col))
 
 
 class Board:
