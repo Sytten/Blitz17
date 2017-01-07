@@ -57,7 +57,7 @@ class Bot:
             x2 = key[0]
             y2 = key[1]
             dist = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
-            if dist < distance:
+            if dist < distance and str(value) != str(self.game.state['hero']['id']):
                 distance = dist
                 nearest = key
         return nearest
