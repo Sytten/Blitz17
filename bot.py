@@ -2,7 +2,7 @@ from random import choice
 from game import Game
 from game import Hero
 from ai import next_move
-from ai import reconstruct_path, a_star_search
+from ai import reconstruct_path, a_star_search, manhattan_dist
 
 import math
 
@@ -48,7 +48,7 @@ class Bot:
             temp = self.game.board.tiles[x2][y2]
             self.game.board.tiles[x2][y2] = -1
 
-            dist, path = self.get_path_length((x1, y1), (x2, y2))
+            dist = manhattan_dist((x1, y1), (x2, y2))
 
             self.game.board.tiles[x2][y2] = temp
             if dist < distance:
@@ -67,7 +67,7 @@ class Bot:
             temp = self.game.board.tiles[x2][y2]
             self.game.board.tiles[x2][y2] = -1
 
-            dist, path = self.get_path_length((x1,y1), (x2,y2))
+            dist = manhattan_dist((x1,y1), (x2,y2))
 
             self.game.board.tiles[x2][y2] = temp
             if dist < distance and str(value) != str(self.game.state['hero']['id']):
