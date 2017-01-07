@@ -18,9 +18,12 @@ def cost(game, current, next):
 
     cost = 1
     if next in game.spikes_locs:
+        cost = 5
+
+    if next in game.heroes_locs:
         cost = 10
 
-    return 1
+    return cost
 
 def manhattan_dist(goal, next):
     dx = abs(next[0] - goal[0])
