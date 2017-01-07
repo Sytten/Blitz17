@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 import sys
 import requests
+import ConfigParser
 
 from bot import RandomBot
 
 TIMEOUT = 15
 BASE_URL = "http://game.blitz.codes:8080"
+SECTION = "Game"
 
 
 def get_new_game_state(session, server_url, key, mode='training', game_id=''):
@@ -115,9 +117,16 @@ def start(server_url, key, mode, game_id, bot):
 
 def main():
     if len(sys.argv) < 3:
-        print("Usage: %s <key> <[training|competition]> [gameId]" % (sys.argv[0]))
-        print('Example: %s mySecretKey competition myGameId' % (sys.argv[0]))
-        print('Example: %s mySecretKey training' % (sys.argv[0]))
+        config = ConfigParser.ConfigParser()
+        config.read("config.ini")
+
+        key = config.get(SECTION, "Secret")
+        mode = config.get(SECTION, "Mode")
+
+        if mode == "competition":
+            game_id = config.get(SECTION, "Secret")
+        else:
+            game_id = ""
     else:
         key = sys.argv[1]
         mode = sys.argv[2]
@@ -126,11 +135,11 @@ def main():
         else:
             game_id = ""
 
-        if mode != "training" and mode != "competition":
-            print("Invalid game mode. Please use 'training' or 'competition'.")
-        else:
-            start(BASE_URL, key, mode, game_id, RandomBot())
-            print("\nGame finished!")
+    if mode != "training" and mode != "competition":
+        print("Invalid game mode. Please use 'training' or 'competition'.")
+    else:
+        start(BASE_URL, key, mode, game_id, RandomBot())
+        print("\nGame finished!")
 
 
 if __name__ == "__main__":
