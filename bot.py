@@ -106,9 +106,15 @@ class Bot:
             if tile in self.game.spikes_locs:
                 life_losing += 10
 
-        if self.hero.life - life_losing < 1:
+        if self.hero.life - life_losing < self.calculate_life_buffer():
             return True
         return False
+
+    def calculate_life_buffer(self):
+        buffer = 10
+        total_items = self.hero.burgers + self.hero.fries
+        buffer += total_items * 3
+        return min(buffer, 30)
 
 class RandomBot(Bot):
     def move(self, state):
