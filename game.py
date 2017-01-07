@@ -16,6 +16,12 @@ AIM = {'North': (-1, 0),
        'South': (1, 0),
        'West': (0, -1)}
 
+AIM_INVERSE = {
+    (-1, 0): 'North',
+    (0, 1): 'East',
+    (1, 0): 'South',
+    (0, -1): 'West'
+}
 
 class HeroTile:
     def __init__(self, id):
@@ -100,6 +106,16 @@ class Board:
         pos = self.tiles[x][y]
         return (pos != WALL) and (pos != TAVERN) and (pos != CUSTOMER) and not isinstance(pos, FriesTile) and not isinstance(pos, BurgerTile)
 
+    def in_bounds(self, loc):
+        row, col = loc
+        return 0 <= row < self.size and 0 <= col < self.size
+
+    def neighbors(self, loc):
+        row, col = loc
+        next_pos = [(row+1, col), (row, col-1), (row-1, col), (row, col+1)]
+        next_pos = filter(self.passable, next_pos)
+        return next_pos
+
     def to(self, loc, direction):
         """Calculate a new location given the direction."""
         row, col = loc
@@ -117,6 +133,8 @@ class Board:
 
         return (n_row, n_col)
 
+    def direction_to(self, loc, next_loc):
+        return AIM_INVERSE[next_loc - loc]
 
 class Hero:
     def __init__(self, hero):
