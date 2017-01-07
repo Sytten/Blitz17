@@ -106,7 +106,7 @@ class Bot:
             if tile in self.game.spikes_locs:
                 life_losing += 10
 
-        if self.hero.life - life_losing < 30:
+        if self.hero.life - life_losing < 1:
             return True
         return False
 
