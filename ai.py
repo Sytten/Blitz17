@@ -18,12 +18,17 @@ def cost(game, current, next):
 
     cost = 1
     if next in game.spikes_locs:
-        cost = 5
+        cost = 10
 
     return 1
+
+def manhattan_dist(goal, next):
+    dx = abs(next[0] - goal[0])
+    dy = abs(next[1] - goal[1])
+    return dx + dy
 
 def heuristic(game, goal, next):
-    return 1
+    return manhattan_dist(goal, next)
 
 def a_star_search(game, start, goal):
     frontier = PriorityQueue()

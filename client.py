@@ -27,8 +27,8 @@ def get_new_game_state(session, server_url, key, mode='training', game_id=''):
     """
     if mode == 'training':
         # Don't pass the 'map' parameter if you want a random map
-        # params = { 'key': key, 'map': 'm1'}
-        params = {'key': key}
+        params = { 'key': key, 'map': 'm5'}
+        # params = {'key': key}
         api_endpoint = '/api/training'
     elif mode == 'competition':
         params = {'key': key}
@@ -124,7 +124,7 @@ def main():
         mode = config.get(SECTION, "Mode")
 
         if mode == "competition":
-            game_id = config.get(SECTION, "Secret")
+            game_id = config.get(SECTION, "GameId")
         else:
             game_id = ""
     else:

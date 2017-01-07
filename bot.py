@@ -15,7 +15,7 @@ class Bot:
 
         target = self.hero.pos
 
-        if self.hero.life < 40:
+        if self.should_go_to_nearest_life() and self.hero.calories >= 30:
             print "Need life"
             life_id = self.nearest(self.game.taverns_locs)
             target = self.game.taverns_locs[life_id]
@@ -48,7 +48,7 @@ class Bot:
             temp = self.game.board.tiles[x2][y2]
             self.game.board.tiles[x2][y2] = -1
 
-            dist = self.get_path_length((x1, y1), (x2, y2))
+            dist, path = self.get_path_length((x1, y1), (x2, y2))
 
             self.game.board.tiles[x2][y2] = temp
             if dist < distance:
@@ -67,7 +67,7 @@ class Bot:
             temp = self.game.board.tiles[x2][y2]
             self.game.board.tiles[x2][y2] = -1
 
-            dist = self.get_path_length((x1,y1), (x2,y2))
+            dist, path = self.get_path_length((x1,y1), (x2,y2))
 
             self.game.board.tiles[x2][y2] = temp
             if dist < distance and str(value) != str(self.game.state['hero']['id']):
@@ -90,7 +90,25 @@ class Bot:
 
         path = reconstruct_path(came_from, start, goal)
 
-        return len(path)
+        return len(path), path
+
+    def should_go_to_nearest_life(self):
+        life_id = self.nearest(self.game.taverns_locs)
+        target = self.game.taverns_locs[life_id]
+
+        temp = self.game.board.tiles[target[0]][target[1]]
+        self.game.board.tiles[target[0]][target[1]] = -1
+        path_len, path = self.get_path_length(self.hero.pos, target)
+        self.game.board.tiles[target[0]][target[1]] = temp
+
+        life_losing = path_len
+        for tile in path:
+            if tile in self.game.spikes_locs:
+                life_losing += 10
+
+        if self.hero.life - life_losing < 30:
+            return True
+        return False
 
 class RandomBot(Bot):
     def move(self, state):
