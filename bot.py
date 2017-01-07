@@ -15,12 +15,13 @@ class Bot:
 
         target = self.hero.pos
 
-        if self.should_go_to_nearest_life() and self.hero.calories >= 30:
+        customer_id = self.nearest(self.game.customers_locs)
+
+        if self.should_go_to_nearest_life() and self.hero.calories >= 30 and not self.can_deliver(customer_id):
             print "Need life"
             life_id = self.nearest(self.game.taverns_locs)
             target = self.game.taverns_locs[life_id]
         else:
-            customer_id = self.nearest(self.game.customers_locs)
             if not self.require_burgers(self.game.customers[customer_id]) \
                     and not self.require_fries(self.game.customers[customer_id]):
                 print "Go to customer"
@@ -115,6 +116,24 @@ class Bot:
         total_items = self.hero.burgers + self.hero.fries
         buffer += total_items * 3
         return min(buffer, 30)
+
+    def can_deliver(self, customer_id):
+        customer = self.game.customers[customer_id]
+        if self.hero.burgers >= customer.burger and self.hero.fries >= customer.french_fries:
+            target = self.game.customers_locs[customer_id]
+            temp = self.game.board.tiles[target[0]][target[1]]
+            self.game.board.tiles[target[0]][target[1]] = -1
+            path_len, path = self.get_path_length(self.hero.pos, target)
+            self.game.board.tiles[target[0]][target[1]] = temp
+
+            life_losing = path_len
+            for tile in path:
+                if tile in self.game.spikes_locs:
+                    life_losing += 10
+
+            if self.hero.life - life_losing > 0:
+                return True
+        return False
 
 class RandomBot(Bot):
     def move(self, state):
