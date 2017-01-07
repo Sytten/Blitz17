@@ -89,6 +89,9 @@ class Bot:
     def get_path_length(self, start, goal):
         came_from, cost_so_far = a_star_search(self.game, start, goal)
 
+        if goal not in came_from:
+            return 1000000, [start, start]
+
         path = reconstruct_path(came_from, start, goal)
 
         return len(path), path
