@@ -14,8 +14,17 @@ PLAYER4 = 4
 AIM = {'North': (-1, 0),
        'East': (0, 1),
        'South': (1, 0),
-       'West': (0, -1)}
+       'West': (0, -1),
+       'Stay': (0, 0)
+}
 
+AIM_INVERSE = {
+    (-1, 0): 'North',
+    (0, 1): 'East',
+    (1, 0): 'South',
+    (0, -1): 'West',
+    (0, 0): 'Stay'
+}
 
 class HeroTile:
     def __init__(self, id):
@@ -96,9 +105,22 @@ class Board:
 
     def passable(self, loc):
         """True if can walk through."""
+        if not self.in_bounds(loc):
+            return False
+
         x, y = loc
         pos = self.tiles[x][y]
         return (pos != WALL) and (pos != TAVERN) and (pos != CUSTOMER) and not isinstance(pos, FriesTile) and not isinstance(pos, BurgerTile)
+
+    def in_bounds(self, loc):
+        row, col = loc
+        return 0 <= row < self.size and 0 <= col < self.size
+
+    def neighbors(self, loc):
+        row, col = loc
+        next_pos = [(row+1, col), (row, col-1), (row-1, col), (row, col+1)]
+        next_pos = filter(self.passable, next_pos)
+        return next_pos
 
     def to(self, loc, direction):
         """Calculate a new location given the direction."""
@@ -117,13 +139,18 @@ class Board:
 
         return (n_row, n_col)
 
+    def direction_to(self, loc, next_loc):
+        return AIM_INVERSE[(next_loc[0] - loc[0], next_loc[1] - loc[1])]
+
 
 class Hero:
     def __init__(self, hero):
         self.name = hero['name']
-        self.pos = hero['pos']
+        self.pos = (hero['pos']['x'], hero['pos']['y'])   # TODO: Validate row column stuff
         self.life = hero['life']
         self.calories = hero['calories']
+        self.fries = hero['frenchFriesCount']
+        self.burgers = hero['burgerCount']
 
 
 class Customer:
