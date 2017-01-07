@@ -15,7 +15,7 @@ class Bot:
 
         target = self.hero.pos
 
-        if self.should_go_to_nearest_life():
+        if self.should_go_to_nearest_life() and self.hero.calories >= 30:
             print "Need life"
             life_id = self.nearest(self.game.taverns_locs)
             target = self.game.taverns_locs[life_id]
