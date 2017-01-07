@@ -15,25 +15,29 @@ class Bot:
 
         target = self.hero.pos
 
-        if self.should_go_to_nearest_life() and self.hero.calories >= 30:
-            print "Need life"
-            life_id = self.nearest(self.game.taverns_locs)
-            target = self.game.taverns_locs[life_id]
-        else:
+        try:
             customer_id = self.nearest(self.game.customers_locs)
-            if not self.require_burgers(self.game.customers[customer_id]) \
-                    and not self.require_fries(self.game.customers[customer_id]):
-                print "Go to customer"
-                target = self.game.customers_locs[customer_id]
-            elif self.require_burgers(self.game.customers[customer_id]):
-                print "Go to burgers"
-                target = self.nearest_dict(self.game.burger_locs)
-            elif self.require_fries(self.game.customers[customer_id]):
-                print "Go to fries"
-                target = self.nearest_dict(self.game.fries_locs)
 
-        self.game.board.tiles[target[0]][target[1]] = -1
-        direction = next_move(self.game, self.hero.pos, target)
+            if self.should_go_to_nearest_life() and self.hero.calories >= 30 and not self.can_deliver(customer_id):
+                print "Need life"
+                life_id = self.nearest(self.game.taverns_locs)
+                target = self.game.taverns_locs[life_id]
+            else:
+                if not self.require_burgers(self.game.customers[customer_id]) \
+                        and not self.require_fries(self.game.customers[customer_id]):
+                    print "Go to customer"
+                    target = self.game.customers_locs[customer_id]
+                elif self.require_burgers(self.game.customers[customer_id]):
+                    print "Go to burgers"
+                    target = self.nearest_dict(self.game.burger_locs)
+                elif self.require_fries(self.game.customers[customer_id]):
+                    print "Go to fries"
+                    target = self.nearest_dict(self.game.fries_locs)
+
+            self.game.board.tiles[target[0]][target[1]] = -1
+            direction = next_move(self.game, self.hero.pos, target)
+        except:
+            return "Stay"
 
         return direction
 
@@ -88,6 +92,9 @@ class Bot:
     def get_path_length(self, start, goal):
         came_from, cost_so_far = a_star_search(self.game, start, goal)
 
+        if goal not in came_from:
+            return 1000000, [start, start]
+
         path = reconstruct_path(came_from, start, goal)
 
         return len(path), path
@@ -106,8 +113,32 @@ class Bot:
             if tile in self.game.spikes_locs:
                 life_losing += 10
 
-        if self.hero.life - life_losing < 30:
+        if self.hero.life - life_losing < self.calculate_life_buffer():
             return True
+        return False
+
+    def calculate_life_buffer(self):
+        buffer = 10
+        total_items = self.hero.burgers + self.hero.fries
+        buffer += total_items * 3
+        return min(buffer, 30)
+
+    def can_deliver(self, customer_id):
+        customer = self.game.customers[customer_id]
+        if self.hero.burgers >= customer.burger and self.hero.fries >= customer.french_fries:
+            target = self.game.customers_locs[customer_id]
+            temp = self.game.board.tiles[target[0]][target[1]]
+            self.game.board.tiles[target[0]][target[1]] = -1
+            path_len, path = self.get_path_length(self.hero.pos, target)
+            self.game.board.tiles[target[0]][target[1]] = temp
+
+            life_losing = path_len
+            for tile in path:
+                if tile in self.game.spikes_locs:
+                    life_losing += 10
+
+            if self.hero.life - life_losing > 0:
+                return True
         return False
 
 class RandomBot(Bot):
