@@ -1,4 +1,7 @@
-### Is you base path the right one ?? ###
+# Blitz 2017
+Bot for the 2017 Coveo Blitz competition!
+
+## Setup
 
 Works with python2 and python3.
 
